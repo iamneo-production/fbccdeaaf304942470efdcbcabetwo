@@ -1,81 +1,76 @@
-// JavaScript code for Tic Tac Toe game logic
-
-// Variables to keep track of game state
+// Initial game state
+let cells = ['', '', '', '', '', '', '', '', ''];
 let currentPlayer = 'X';
-let gameEnded = false;
+let result = document.querySelector('.result');
+let btns = document.querySelectorAll('.btn');
+let conditions = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+];
 
 // Function to handle player's move
-function handleMove(event) {
-    const inputField = event.target;
+function ticTacToe(btn, index) {
+    if (btn.value === '' && !gameEnded) {
+        btn.value = currentPlayer;
+        btn.classList.add('disabled');
+        cells[index] = currentPlayer;
 
-    // Check if the input field is empty and the game is not ended
-    if (inputField.value === '' && !gameEnded) {
-        inputField.value = currentPlayer;
-        inputField.classList.add('disabled');
-
-        // Check for a winning condition
         if (checkWin()) {
             endGame(`${currentPlayer} wins!`);
         } else if (checkDraw()) {
             endGame("It's a draw!");
         } else {
-            // Switch to the next player
             currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
-            document.querySelector('.result').textContent = `Player ${currentPlayer}'s Turn`;
+            result.textContent = `Player ${currentPlayer}'s Turn`;
         }
     }
 }
 
 // Function to check for a winning condition
 function checkWin() {
-    const grid = document.querySelectorAll('.btn');
-
-    // Define winning combinations
-    const winningCombinations = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-        [0, 4, 8], [2, 4, 6] // Diagonals
-    ];
-
-    // Check if any winning combination is achieved
-    for (const combination of winningCombinations) {
-        const [a, b, c] = combination;
-        if (grid[a].value !== '' && grid[a].value === grid[b].value && grid[a].value === grid[c].value) {
+    for (const condition of conditions) {
+        const [a, b, c] = condition;
+        if (cells[a] !== '' && cells[a] === cells[b] && cells[a] === cells[c]) {
             return true;
         }
     }
-
     return false;
 }
 
 // Function to check for a draw condition
 function checkDraw() {
-    const grid = document.querySelectorAll('.btn');
-
-    // Check if all input fields are filled
-    for (const inputField of grid) {
-        if (inputField.value === '') {
-            return false;
-        }
-    }
-
-    return true;
+    return cells.every(cell => cell !== '');
 }
 
 // Function to end the game
-function endGame(result) {
+function endGame(resultText) {
     gameEnded = true;
-    document.querySelector('.result').textContent = result;
+    result.textContent = resultText;
     document.getElementById('reset-btn').disabled = false;
 }
 
-// Event listener for player's move
-const inputFields = document.querySelectorAll('.btn');
-for (const inputField of inputFields) {
-    inputField.addEventListener('click', handleMove);
+// Function to reset the game
+function resetGame() {
+    cells = ['', '', '', '', '', '', '', '', ''];
+    currentPlayer = 'X';
+    result.textContent = "Player X's Turn";
+    btns.forEach(btn => {
+        btn.value = '';
+        btn.classList.remove('disabled');
+    });
+    gameEnded = false;
+    document.getElementById('reset-btn').disabled = true;
 }
 
-// Event listener for reset button
-document.getElementById('reset-btn').addEventListener('click', function () {
-    location.reload();
+// Event listeners
+btns.forEach((btn, i) => {
+    btn.addEventListener('click', () => ticTacToe(btn, i));
 });
+
+document.querySelector('#reset-btn').addEventListener('click', resetGame);
